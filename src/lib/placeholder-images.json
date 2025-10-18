@@ -1,0 +1,52 @@
+{
+  "placeholderImages": [
+    {
+      "id": "tic-tac-toe",
+      "description": "Tic Tac Toe game board",
+      "imageUrl": "https://images.unsplash.com/photo-1695557100110-237e16c343d1?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHx0aWMlMjB0YWMlMjB0b2V8ZW58MHx8fHwxNzU5NzYwOTk4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "tic tac toe"
+    },
+    {
+      "id": "chess",
+      "description": "Chess game board",
+      "imageUrl": "https://images.unsplash.com/photo-1626463667906-ee4fbcf6bebd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxjaGVzcyUyMGJvYXJkfGVufDB8fHx8fDE3NTk3MzE4MzB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "chess board"
+    },
+    {
+      "id": "ping-pong",
+      "description": "Ping Pong game",
+      "imageUrl": "https://images.unsplash.com/photo-1609710228159-0fa9bd7c0827?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwaW5nJTIwcG9uZ3xlbnwwfHx8fDE3NTk3NTg3NzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "ping pong"
+    },
+    {
+      "id": "puzzle-jigsaw",
+      "description": "Puzzle game",
+      "imageUrl": "https://images.unsplash.com/photo-1612385763901-68857dd4c43c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxqaWdzYXclMjBwdXp6bGV8ZW58MHx8fHwxNzU5NzU5NTEyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "jigsaw puzzle"
+    },
+    {
+      "id": "puzzle-landscape",
+      "description": "Landscape puzzle image",
+      "imageUrl": "https://images.unsplash.com/photo-1506748686214-e9df14d4d9d0?q=80&w=2070&auto=format&fit=crop",
+      "imageHint": "landscape mountain"
+    },
+    {
+      "id": "memory-match",
+      "description": "Memory Match game",
+      "imageUrl": "https://images.unsplash.com/photo-1636583133884-fbefc7ac3fb3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwbGF5aW5nJTIwY2FyZHN8ZW58MHx8fHwxNzU5NzE2NjI4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "playing cards"
+    },
+    {
+      "id": "user-avatar",
+      "description": "User profile avatar",
+      "imageUrl": "https://images.unsplash.com/photo-1639149888905-fb39731f2e6c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHx1c2VyJTIwYXZhdGFyfGVufDB8fHx8fDE3NTk3MDAzODl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "user avatar"
+    },
+    {
+      "id": "game-controller-hero",
+      "description": "Game controller for hero section",
+      "imageUrl": "https://images.unsplash.com/photo-1592840496694-26d035b52b48?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxnYW1lJTIwY29udHJvbGxlcnxlbnwwfHx8fDE3NTk3MjExODB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "game controller"
+    }
+  ]
+}

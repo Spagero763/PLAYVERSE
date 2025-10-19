@@ -2,7 +2,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Gamepad2, Menu, Crown, User, Swords, LogOut, Cpu, KeySquare } from 'lucide-react';
+import { Gamepad2, Menu, Crown, User, Swords, LogOut } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Button } from './ui/button';
@@ -12,8 +12,6 @@ import React, { useState, useEffect } from 'react';
 
 const navItems = [
   { href: '/games', label: 'All Games', icon: Swords },
-  { href: '/agents', label: 'Agents', icon: Cpu },
-  { href: '/delegations', label: 'Delegations', icon: KeySquare },
   { href: '/leaderboard', label: 'Leaderboard', icon: Crown },
   { href: '/profile', label: 'Profile', icon: User },
 ];

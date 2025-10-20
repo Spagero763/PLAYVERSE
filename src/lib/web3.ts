@@ -1,3 +1,4 @@
+'use client';
 
 import { createConfig, http } from 'wagmi';
 import { mainnet, sepolia } from 'wagmi/chains';

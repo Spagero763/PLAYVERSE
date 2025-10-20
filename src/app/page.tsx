@@ -7,6 +7,11 @@ import AnimatedButton from '@/components/animated-button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Link from 'next/link';
+import { useState } from 'react';
+import GameCard from '@/components/game-card';
+import { allGames } from '@/lib/constants';
+import { Game } from '@/lib/types';
+import GameModeSelection from '@/components/game-mode-selection';
 
 const features = [
   {
@@ -28,6 +33,15 @@ const features = [
 
 export default function Home() {
   const heroImage = PlaceHolderImages.find(p => p.id === 'game-controller-hero');
+  const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+
+  const handleGameSelect = (game: Game) => {
+    setSelectedGame(game);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedGame(null);
+  };
 
   return (
     <PageShell>
@@ -96,6 +110,24 @@ export default function Home() {
             ))}
         </div>
       </div>
+      <div className="py-24">
+        <div className="text-center mb-12 animate-fade-in">
+            <h2 className="text-4xl md:text-5xl font-headline font-bold">Games</h2>
+            <p className="mt-2 text-lg text-muted-foreground">Challenge other players or our advanced AI.</p>
+        </div>
+        <div className="mt-12 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+          {allGames.map((game, index) => (
+            <GameCard key={game.id} game={game} index={index} onPlayClick={() => handleGameSelect(game)} />
+          ))}
+        </div>
+      </div>
+      {selectedGame && (
+        <GameModeSelection
+            game={selectedGame}
+            isOpen={!!selectedGame}
+            onClose={handleCloseModal}
+        />
+      )}
     </PageShell>
   );
 }

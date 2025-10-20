@@ -12,8 +12,7 @@ import React, { useState, useEffect } from 'react';
 
 const navItems = [
   { href: '/games', label: 'All Games', icon: Swords },
-  { href: '/agents', label: 'Agents', icon: Cpu },
-  { href: '/delegations', label: 'Delegations', icon: KeySquare },
+  // Delegations feature removed
   { href: '/leaderboard', label: 'Leaderboard', icon: Crown },
   { href: '/profile', label: 'Profile', icon: User },
 ];

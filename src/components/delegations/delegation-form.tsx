@@ -1,63 +1,49 @@
-'use client';
+"use client";
 
 import { useState } from 'react';
-import { z } from 'zod';
-import { useAccount } from 'wagmi';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { toast } from '@/hooks/use-toast';
-import type { Address } from 'viem';
-import type { DelegationPacket } from '@/lib/delegation/types';
-import { MMSA } from '@/lib/delegation/env';
-
-const schema = z.object({
-  delegate: z.string().startsWith('0x').length(42),
-  targets: z.string().min(1),
-  startTime: z.string(),
-  endTime: z.string(),
-});
 
 export default function DelegationForm() {
-  const { address } = useAccount();
-  const [loading, setLoading] = useState(false);
+  const [delegate, setDelegate] = useState('');
+  const [target, setTarget] = useState('');
+  const [signature, setSignature] = useState<string | null>(null);
+  const [packet, setPacket] = useState<any | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
 
-  async function onSubmit(formData: FormData) {
-    if (!address) {
-      toast({ title: 'Connect wallet', description: 'Please connect your wallet first.' });
+  async function signDelegation(e: React.FormEvent) {
+    e.preventDefault();
+    setStatus('Preparing typed data...');
+    if (!(window as any).ethereum) {
+      setStatus('No injected wallet found (MetaMask required).');
       return;
     }
-    const data = Object.fromEntries(formData.entries());
-    const parsed = schema.safeParse(data);
-    if (!parsed.success) {
-      toast({ title: 'Invalid input', description: 'Please check the fields.' });
-      return;
+
+    const owner = (window as any).ethereum.selectedAddress || null;
+    if (!owner) {
+      try {
+        await (window as any).ethereum.request({ method: 'eth_requestAccounts' });
+      } catch (err) {
+        setStatus('Wallet connection required');
+        return;
+      }
     }
-    const targets = (parsed.data.targets as string).split(',').map((t) => t.trim() as Address);
-    const startTime = Math.floor(new Date(parsed.data.startTime as string).getTime() / 1000);
-    const endTime = Math.floor(new Date(parsed.data.endTime as string).getTime() / 1000);
+
+    const chainId = parseInt(process.env.NEXT_PUBLIC_MONAD_CHAIN_ID || '10143', 10);
+    const domain = {
+      name: process.env.NEXT_PUBLIC_MMSA_DOMAIN || 'Playverse Delegation',
+      version: '1',
+      chainId,
+      verifyingContract: process.env.NEXT_PUBLIC_MMSA_VERIFYING_CONTRACT || undefined,
+    } as any;
 
     const message = {
-      owner: address as Address,
-      delegate: parsed.data.delegate as Address,
-      allowedTargets: targets,
-      startTime,
-      endTime,
-      // bytes32 nonce required by EIP-712 types; using crypto.getRandomValues
-      nonce: (() => {
-        const bytes = new Uint8Array(32);
-        crypto.getRandomValues(bytes);
-        return ('0x' + Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('')) as `0x${string}`;
-      })(),
+      owner: (window as any).ethereum.selectedAddress || owner,
+      delegate,
+      allowedTargets: target ? [target] : [],
+      startTime: Math.floor(Date.now() / 1000),
+      endTime: Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 30,
+      nonce: `0x${'0'.repeat(64)}`,
     };
 
-    // EIP-712 typed data per Delegation Toolkit style
-    const domain = {
-      name: MMSA.DOMAIN_NAME,
-      version: '1',
-      chainId: MMSA.CHAIN_ID,
-      verifyingContract: MMSA.VERIFYING_CONTRACT,
-    } as const;
     const types = {
       Delegation: [
         { name: 'owner', type: 'address' },
@@ -67,69 +53,54 @@ export default function DelegationForm() {
         { name: 'endTime', type: 'uint256' },
         { name: 'nonce', type: 'bytes32' },
       ],
-    } as const;
-    const sig = await (window as any).ethereum.request({
-      method: 'eth_signTypedData_v4',
-      params: [
-        address,
-        JSON.stringify({
-          domain,
-          types,
-          primaryType: 'Delegation',
-          message: {
-            owner: message.owner,
-            delegate: message.delegate,
-            allowedTargets: message.allowedTargets,
-            startTime: message.startTime,
-            endTime: message.endTime,
-            nonce: message.nonce,
-          },
-        }),
-      ],
-    });
+    } as any;
 
-    const packet: DelegationPacket = {
-      chainId: MMSA.CHAIN_ID,
-      domainName: MMSA.DOMAIN_NAME,
-      verifyingContract: MMSA.VERIFYING_CONTRACT,
-      message,
-      signature: sig,
-    };
+    const typedData = { types: { EIP712Domain: [], Delegation: types.Delegation }, domain, primaryType: 'Delegation', message };
 
     try {
-      setLoading(true);
-      const res = await fetch('/api/delegations/verify', { method: 'POST', body: JSON.stringify(packet) });
-      const json = await res.json();
-      if (!json.ok) throw new Error(json.error || 'Failed');
-      toast({ title: 'Delegation Saved', description: 'Your agent can now act within the limits.' });
-    } catch (e: any) {
-      toast({ title: 'Error', description: e?.message || 'Failed to save delegation' });
-    } finally {
-      setLoading(false);
+      setStatus('Requesting signature...');
+      const from = (window as any).ethereum.selectedAddress;
+      const sig = await (window as any).ethereum.request({
+        method: 'eth_signTypedData_v4',
+        params: [from, JSON.stringify({ types: { Delegation: types.Delegation, EIP712Domain: [] }, domain, primaryType: 'Delegation', message })],
+      });
+
+      const packet = {
+        chainId,
+        domainName: domain.name,
+        verifyingContract: domain.verifyingContract,
+        message,
+        signature: sig,
+      };
+      setSignature(sig);
+      setPacket(packet);
+      localStorage.setItem('delegationPacket', JSON.stringify(packet));
+      setStatus('Delegation signed and saved locally.');
+    } catch (err: any) {
+      setStatus('Signature failed: ' + (err?.message || String(err)));
     }
   }
 
   return (
-    <form action={onSubmit} className="space-y-4">
+    <form onSubmit={signDelegation} className="space-y-3">
       <div>
-        <Label>Delegate (agent) address</Label>
-        <Input name="delegate" placeholder="0xAgent..." />
+        <label className="block text-sm font-medium">Delegate (agent) address</label>
+        <input className="mt-1 w-full" value={delegate} onChange={(e) => setDelegate(e.target.value)} placeholder="0xAgent..." />
       </div>
       <div>
-        <Label>Allowed target contract(s), comma-separated</Label>
-        <Input name="targets" placeholder="0xTarget1,0xTarget2" />
+        <label className="block text-sm font-medium">Allowed target (contract)</label>
+        <input className="mt-1 w-full" value={target} onChange={(e) => setTarget(e.target.value)} placeholder="0xContract..." />
       </div>
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <Label>Start time</Label>
-          <Input type="datetime-local" name="startTime" />
-        </div>
-        <div>
-          <Label>End time</Label>
-          <Input type="datetime-local" name="endTime" />
-        </div>
+      <div className="flex gap-2">
+        <button type="submit" className="btn">Sign Delegation</button>
+        <button type="button" className="btn" onClick={() => { localStorage.removeItem('delegationPacket'); setPacket(null); setSignature(null); setStatus('Cleared'); }}>Clear</button>
       </div>
-      <Button type="submit" disabled={loading}>{loading ? 'Saving...' : 'Create Delegation'}</Button>
+      <div className="mt-2 text-sm">
+        <div>Status: {status}</div>
+        {signature && <div className="break-all">Signature: {signature}</div>}
+        {packet && <pre className="text-xs mt-2 overflow-auto">{JSON.stringify(packet, null, 2)}</pre>}
+      </div>
     </form>
   );
 }
+

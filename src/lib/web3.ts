@@ -4,8 +4,10 @@ import { createConfig, http } from 'wagmi';
 import { mainnet, sepolia } from 'wagmi/chains';
 import { walletConnect, injected } from 'wagmi/connectors';
 import { defineChain } from 'viem';
+import { getReferralTag, submitReferral } from '@divvi/referral-sdk';
 
 const projectId = 'dc37f4ba07aebe0f49899bb9b061eaa4';
+const DIVVI_CONSUMER_ADDRESS = '0x50BcA645b274A152a1C64B6251C0Ac52725BaAc1';
 
 // Custom Monad Testnet chain definition. Configure via env for real deployment.
 export const monadTestnet = defineChain({
@@ -39,3 +41,18 @@ export const config = createConfig({
     [monadTestnet.id]: http(monadTestnet.rpcUrls.default.http[0]),
   },
 });
+
+export const withDivvi = (sendTransaction: (args: any) => Promise<any>, walletClient: any) => {
+  return async (args: any) => {
+    if (!walletClient) {
+      throw new Error("Wallet client is not ready");
+    }
+    const referralTag = getReferralTag({
+      user: walletClient.account.address,
+      consumer: DIVVI_CONSUMER_ADDRESS,
+    });
+    const txHash = await sendTransaction({ ...args, data: (args.data || "") + referralTag.slice(2) });
+    await submitReferral({ txHash, chainId: walletClient.chain.id });
+    return txHash;
+  };
+};

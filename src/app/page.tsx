@@ -1,5 +1,14 @@
 'use client';
 
+import Head from 'next/head';
+
+export default function Home() {
+  return (
+    <>
+      <Head>
+        <meta name="base:app_id" content="693d00d3d77c069a945bde41" />
+      </Head>
+      {
 import Image from 'next/image';
 import { Users, Bot, BarChart, UserPlus, Wallet } from 'lucide-react';
 import { PageShell } from '@/components/page-shell';
@@ -97,5 +106,9 @@ export default function Home() {
         </div>
       </div>
     </PageShell>
+  );
+}
+      }
+    </>
   );
 }

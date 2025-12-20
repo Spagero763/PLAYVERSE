@@ -1,0 +1,39 @@
+name: Deploy Contract
+
+on:
+  workflow_dispatch:
+    inputs:
+      network:
+        description: 'Target network (base or celo)'
+        required: true
+        default: 'base'
+      verify:
+        description: 'Attempt on-chain verification (true/false)'
+        required: false
+        default: 'false'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Deploy Contract
+        env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY }}
+          BASE_RPC_URL: ${{ secrets.BASE_RPC_URL }}
+          CELO_RPC_URL: ${{ secrets.CELO_RPC_URL }}
+          ETHERSCAN_API_KEY: ${{ secrets.ETHERSCAN_API_KEY }}
+          CELO_BLOCKSCOUT_API_KEY: ${{ secrets.CELO_BLOCKSCOUT_API_KEY }}
+          VERIFY: ${{ github.event.inputs.verify }}
+        run: |
+          echo "Deploying to ${{ github.event.inputs.network }}"
+          npx hardhat run scripts/deploy.ts --network ${{ github.event.inputs.network }}

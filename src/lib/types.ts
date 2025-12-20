@@ -21,6 +21,7 @@ export type UserProfile = {
   xp: number;
   rank: string;
   badges: string[];
+  preferredChainId?: number;
   gameplayData: {
     gamesPlayed: string[];
     winLossRatio: string;

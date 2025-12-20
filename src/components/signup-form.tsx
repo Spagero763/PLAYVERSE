@@ -12,7 +12,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { User, Upload, Check, Loader2, Wallet } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { useAccount, useConnect } from 'wagmi';
+import { useAccount, useConnect, useChainId, useSwitchChain } from 'wagmi';
+import { baseChain, celoChain } from '@/lib/web3';
 import { defaultProfile } from '@/lib/constants';
 
 const signupSchema = z.object({
@@ -29,6 +30,10 @@ export function SignupForm() {
   
   const { address, isConnected } = useAccount();
   const { connect, connectors, isPending } = useConnect();
+  const chainId = useChainId();
+  const { switchChain } = useSwitchChain();
+
+  const [preferredChainId, setPreferredChainId] = useState<number>(Number(process.env.NEXT_PUBLIC_BASE_CHAIN_ID || baseChain.id));
 
   const form = useForm<SignupFormValues>({
     resolver: zodResolver(signupSchema),
@@ -69,24 +74,44 @@ export function SignupForm() {
 
   useEffect(() => {
     // This runs after the wallet is connected
-    if (formCompleted && isConnected && address) {
-        const formData = form.getValues();
-        const profileData = {
-            ...defaultProfile,
-            address: address,
-            name: formData.username,
-            avatar: formData.avatar,
-        };
-        localStorage.setItem(`userProfile-${address}`, JSON.stringify(profileData));
-        localStorage.setItem('userProfile', JSON.stringify(profileData));
+    const tryComplete = async () => {
+      if (formCompleted && isConnected && address) {
+          const formData = form.getValues();
+          // Ensure the user's wallet is on the preferred chain
+          if (typeof preferredChainId === 'number' && chainId && chainId !== preferredChainId) {
+            if (switchChain) {
+              try {
+                await switchChain(preferredChainId);
+                toast({ title: 'Network switched', description: `Switched wallet to ${preferredChainId}` });
+              } catch (e) {
+                toast({ variant: 'destructive', title: 'Switch failed', description: 'Please switch your wallet network to proceed.' });
+                return;
+              }
+            } else {
+              toast({ variant: 'destructive', title: 'Unsupported', description: 'Please switch your wallet to the preferred network.' });
+              return;
+            }
+          }
 
-        toast({
-            title: 'Account Created!',
-            description: `Welcome to the PlayVerse, ${formData.username}!`,
-        });
-        router.push('/games');
-    }
-  }, [formCompleted, isConnected, address, form, router]);
+          const profileData = {
+              ...defaultProfile,
+              address: address,
+              name: formData.username,
+              avatar: formData.avatar,
+              preferredChainId: preferredChainId,
+          };
+          localStorage.setItem(`userProfile-${address}`, JSON.stringify(profileData));
+          localStorage.setItem('userProfile', JSON.stringify(profileData));
+
+          toast({
+              title: 'Account Created!',
+              description: `Welcome to the PlayVerse, ${formData.username}!`,
+          });
+          router.push('/games');
+      }
+    };
+    tryComplete();
+  }, [formCompleted, isConnected, address, form, router, preferredChainId, chainId, switchChain]);
 
 
    const handleConnect = () => {
@@ -154,6 +179,16 @@ export function SignupForm() {
                     </FormItem>
                 )}
                 />
+
+                <FormItem>
+                  <FormLabel>Preferred Network</FormLabel>
+                  <FormControl>
+                    <div className="grid grid-cols-2 gap-2">
+                      <Button variant={preferredChainId === baseChain.id ? 'default' : 'ghost'} onClick={() => setPreferredChainId(baseChain.id)}>Base (ETH)</Button>
+                      <Button variant={preferredChainId === celoChain.id ? 'default' : 'ghost'} onClick={() => setPreferredChainId(celoChain.id)}>Celo</Button>
+                    </div>
+                  </FormControl>
+                </FormItem>
                 
                 <Button type="submit" className="w-full">
                     <Check className="mr-2 h-5 w-5" />

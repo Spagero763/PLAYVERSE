@@ -1,7 +1,8 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import StakeModal from '@/components/stake-modal';
 import { useRouter, useParams, useSearchParams } from 'next/navigation';
 import { PageShell } from '@/components/page-shell';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,8 +22,24 @@ const AiGames = ['tic-tac-toe', 'chess', 'ping-pong'];
 
 const GameContent = ({ game, mode }: { game: string, mode: string | null }) => {
   const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard' | null>(null);
+  const [stakeOpen, setStakeOpen] = useState(false);
+  const [stakeDone, setStakeDone] = useState(false);
 
   const needsDifficulty = AiGames.includes(game.toLowerCase()) && mode !== 'multiplayer';
+
+  // Helper to create a bytes32-ish id for game instance
+  const generateGameId = () => {
+    const arr = new Uint8Array(32);
+    crypto.getRandomValues(arr);
+    return '0x' + Array.from(arr).map((b) => b.toString(16).padStart(2, '0')).join('');
+  };
+
+  useEffect(() => {
+    // if user selects hard mode, open the stake modal
+    if (difficulty === 'hard' && !stakeDone) {
+      setStakeOpen(true);
+    }
+  }, [difficulty, stakeDone]);
 
   if (needsDifficulty && !difficulty) {
     return (
@@ -47,6 +64,21 @@ const GameContent = ({ game, mode }: { game: string, mode: string | null }) => {
   }
 
   const normalizedGame = game.toLowerCase();
+
+  // If hard mode selected, require a stake before rendering the game
+  if (difficulty === 'hard' && !stakeDone) {
+    const gid = generateGameId();
+    return (
+      <div className="flex flex-col items-center gap-4">
+        <p className="text-lg">Hard mode requires a small stake before starting.</p>
+        <AnimatedButton variant="secondary" onClick={() => setStakeOpen(true)}>
+          <HardHat className="mr-2 h-5 w-5" />
+          Stake & Play
+        </AnimatedButton>
+        <StakeModal open={stakeOpen} onOpenChange={setStakeOpen} gameId={gid} onSuccess={() => setStakeDone(true)} />
+      </div>
+    );
+  }
 
   if (normalizedGame === 'tic-tac-toe') {
     return <TicTacToeGame difficulty={difficulty} setDifficulty={setDifficulty} gameMode={mode} />;

@@ -1,0 +1,2 @@
+# E2E workflow removed — Playwright tests are disabled for the MVP production rollout.
+# To re-enable, restore a workflow that installs Playwright browsers and runs the test suite against PREVIEW_URL.

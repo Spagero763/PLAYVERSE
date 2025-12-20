@@ -1,0 +1,58 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - banner [ref=e54]:
+    - generic [ref=e55]:
+      - link "PlayVerse" [ref=e56] [cursor=pointer]:
+        - /url: /
+        - img [ref=e57]
+        - generic [ref=e59]: PlayVerse
+      - navigation [ref=e61]:
+        - link "All Games" [ref=e62] [cursor=pointer]:
+          - /url: /games
+          - img [ref=e63]
+          - generic [ref=e72]: All Games
+        - link "Leaderboard" [ref=e73] [cursor=pointer]:
+          - /url: /leaderboard
+          - img [ref=e74]
+          - generic [ref=e76]: Leaderboard
+        - link "Profile" [ref=e77] [cursor=pointer]:
+          - /url: /profile
+          - img [ref=e78]
+          - generic [ref=e81]: Profile
+        - link "Login" [ref=e82] [cursor=pointer]:
+          - /url: /login
+          - img [ref=e83]
+          - generic [ref=e86]: Login
+  - main [ref=e87]:
+    - generic [ref=e90]:
+      - generic [ref=e91]:
+        - img [ref=e94]
+        - generic [ref=e97]: Login
+        - generic [ref=e98]: Enter your credentials to continue your journey.
+      - generic [ref=e99]:
+        - generic [ref=e100]:
+          - generic [ref=e101]:
+            - paragraph [ref=e102]: Preferred network
+            - generic [ref=e103]:
+              - button "Base (ETH)" [ref=e104] [cursor=pointer]
+              - button "Celo" [ref=e105] [cursor=pointer]
+          - button "Login with Wallet" [ref=e106] [cursor=pointer]:
+            - img
+            - text: Login with Wallet
+          - paragraph [ref=e107]: Connect your EVM wallet to log in or create an account.
+        - paragraph [ref=e108]:
+          - text: Don't have an account?
+          - link "Sign up" [ref=e109] [cursor=pointer]:
+            - /url: /signup
+  - contentinfo [ref=e110]:
+    - generic [ref=e111]:
+      - img [ref=e112]
+      - generic [ref=e114]: © 2025 PlayVerse. All rights reserved.
+  - region "Notifications (F8)":
+    - list
+  - alert [ref=e115]
+  - button "Open Next.js Dev Tools" [ref=e121] [cursor=pointer]:
+    - img [ref=e122]
+```

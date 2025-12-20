@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import StakeList from '@/components/stake-list';
 
 export default function ProfileClientPage({ profile }: { profile: UserProfile | null }) {
   
@@ -62,6 +63,13 @@ export default function ProfileClientPage({ profile }: { profile: UserProfile | 
                     {badge}
                   </span>
                 )) : <p className="text-sm text-muted-foreground">No badges earned yet.</p>}
+              </div>
+              {profile.preferredChainId && (
+                <div className="mt-4 text-sm text-muted-foreground">Preferred Network: {profile.preferredChainId === 42220 ? 'Celo' : profile.preferredChainId === 8453 ? 'Base' : String(profile.preferredChainId)}</div>
+              )}
+              <div className="mt-6">
+                <h2 className="text-sm font-medium mb-2">My Stakes</h2>
+                <StakeList />
               </div>
             </CardContent>
           </Card>
